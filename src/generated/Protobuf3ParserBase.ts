@@ -1,4 +1,4 @@
-import { Parser, CommonTokenStream, type TokenStream, type Token, type CharStream } from 'antlr4ng';
+import { Parser, CommonTokenStream, CharStream, type TokenStream, type Token } from 'antlr4ng';
 import { Protobuf3Parser, DoMessageNameDefContext, MessageDefContext, DoEnumNameDefContext, EnumDefContext, DoServiceNameDefContext, ServiceDefContext, ImportStatementContext } from './Protobuf3Parser.ts';
 import { Protobuf3Lexer } from './Protobuf3Lexer.ts';
 import { Symbol } from './Symbol.ts';
@@ -12,7 +12,7 @@ export default abstract class Protobuf3ParserBase extends Parser {
     private debug = false;
     private readonly prefix = '   ';
     protected symbolTable = new SymbolTable();
-    protected default_type = TypeClassification.Message_;
+    protected default_type: TypeClassification = TypeClassification.Message_;
     private static imported_files: Set<string> = new Set<string>();
 
     constructor(input: TokenStream) {
