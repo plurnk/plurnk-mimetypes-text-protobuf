@@ -1,0 +1,14 @@
+node_modules/
+dist/
+*.tgz
+*.log
+.DS_Store
+AGENTS.md
+
+# antlr-ng generated parser/lexer/visitor — built by `npm run build:grammar`.
+src/generated/*
+!src/generated/Protobuf3ParserBase.ts
+# Auxiliary classes used by Protobuf3ParserBase's symbol-table machinery.
+!src/generated/Symbol.ts
+!src/generated/SymbolTable.ts
+!src/generated/TypeClassification.ts
