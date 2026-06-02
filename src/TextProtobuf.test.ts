@@ -3,7 +3,7 @@ import assert from "node:assert/strict";
 import TextProtobuf from "./TextProtobuf.ts";
 
 const metadata = {
-    mimetype: "application/x-protobuf",
+    mimetype: "application/protobuf",
     glyph: "🔧",
     extensions: [".proto"] as const,
 };
@@ -11,7 +11,7 @@ const metadata = {
 describe("TextProtobuf — instantiation", () => {
     it("instantiates with metadata", () => {
         const h = new TextProtobuf(metadata);
-        assert.equal(h.mimetype, "application/x-protobuf");
+        assert.equal(h.mimetype, "application/protobuf");
         assert.equal(h.glyph, "🔧");
     });
 });

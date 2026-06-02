@@ -1,7 +1,7 @@
 {
     "name": "@plurnk/plurnk-mimetypes-text-protobuf",
-    "version": "0.1.0",
-    "description": "application/x-protobuf mimetype handler for plurnk-service. ANTLR-backed extraction via grammars-v4.",
+    "version": "0.2.0",
+    "description": "application/protobuf mimetype handler for plurnk-service. ANTLR-backed extraction via grammars-v4.",
     "type": "module",
     "license": "MIT",
     "publishConfig": {
@@ -14,7 +14,7 @@
         "kind": "mimetype",
         "handlers": [
             {
-                "name": "application/x-protobuf",
+                "name": "application/protobuf",
                 "glyph": "\ud83d\udd27",
                 "extensions": [
                     ".proto"
