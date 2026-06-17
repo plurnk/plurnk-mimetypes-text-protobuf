@@ -46,7 +46,9 @@ class TextProtobufVisitor extends withExtractor(Protobuf3Visitor) {
         const name = identText(mn);
         if (!name) return null;
         this.addSymbol("class", name, ctx);
-        this.visitChildren(ctx);
+        // Scope the body so fields + their type refs carry container = this
+        // message (qualified for nested messages — the @> join key, SPEC §16).
+        this.gateContainer(name, ctx);
         return null;
     };
 
@@ -64,7 +66,9 @@ class TextProtobufVisitor extends withExtractor(Protobuf3Visitor) {
         const name = identText(sn);
         if (!name) return null;
         this.addSymbol("interface", name, ctx);
-        this.visitChildren(ctx);
+        // Scope so each rpc's request/response type refs carry container = this
+        // service.
+        this.gateContainer(name, ctx);
         return null;
     };
 
@@ -81,6 +85,12 @@ class TextProtobufVisitor extends withExtractor(Protobuf3Visitor) {
             if (t) params.push(t);
         }
         this.addSymbol("method", name, ctx, params);
+        // Request + response message types are type edges from this service to
+        // the messages they name.
+        for (const mt of mts) {
+            const tn = (mt as { getText?: () => string }).getText?.();
+            if (tn) this.addRef("type", tn, mt as never);
+        }
         return null;
     };
 
@@ -89,6 +99,7 @@ class TextProtobufVisitor extends withExtractor(Protobuf3Visitor) {
         const fn = ctx.fieldName?.();
         const name = identText(fn);
         if (name) this.addSymbol("field", name, ctx);
+        this.emitTypeRef(ctx.type_?.());
         return null;
     };
 
@@ -97,6 +108,7 @@ class TextProtobufVisitor extends withExtractor(Protobuf3Visitor) {
         const fn = ctx.fieldName?.();
         const name = identText(fn);
         if (name) this.addSymbol("field", name, ctx);
+        this.emitTypeRef(ctx.type_?.());
         return null;
     };
 
@@ -105,8 +117,23 @@ class TextProtobufVisitor extends withExtractor(Protobuf3Visitor) {
         const mn = ctx.mapName?.();
         const name = identText(mn);
         if (name) this.addSymbol("field", name, ctx);
+        // The map VALUE type can be a message/enum; the key is always scalar.
+        this.emitTypeRef(ctx.type_?.());
         return null;
     };
+
+    // A field/map-value type that is a user-defined message or enum (not a
+    // builtin scalar) is a `type` edge to that type, named as written. Scalars
+    // (int32/string/…) have no messageType/enumType child and emit nothing.
+    // Qualified cross-package names (`google.protobuf.Timestamp`) simply never
+    // name-join locally — dead rows, not noise.
+    emitTypeRef(tctx: any): void {
+        if (!tctx) return;
+        const mt = tctx.messageType?.() ?? tctx.enumType?.();
+        if (!mt) return;
+        const name = (mt as { getText?: () => string }).getText?.();
+        if (name) this.addRef("type", name, mt as never);
+    }
 }
 
 function identText(ctx: unknown): string | null {
